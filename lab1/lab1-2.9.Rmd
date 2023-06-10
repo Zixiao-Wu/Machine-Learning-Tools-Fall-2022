@@ -1,0 +1,83 @@
+---
+title: "group 5"
+output: html_document
+date: "2022-09-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+# auto = read.csv('D:\\daily\\WashU\\机器学习\\set\\ALL CSV FILES\\Auto.csv')
+# auto = na.omit(auto)
+```
+
+```{r}
+library(ISLR)
+auto <- Auto
+dim(auto)
+auto = na.fail(auto)
+```
+#(a)
+Quantitative predictor: mpg,cylinders,displacement,horsepower, weight, acceleration, year.
+Qualitative predictor: name, origin.
+
+#(b)
+```{r}
+
+sapply(auto[, 1:7], range)
+```
+
+#(c)
+```{r}
+sapply(auto[, 1:7], mean)
+sapply(auto[, 1:7], sd)
+```
+
+#(d)
+```{r}
+newauto = auto[-c(10:85),]
+dim(newauto)
+sapply(newauto[, 1:7], range)
+sapply(newauto[, 1:7], mean)
+sapply(newauto[, 1:7], sd)
+```
+
+#(e)
+```{r}
+pairs(~ auto$mpg + auto$cylinders + auto$displacement + auto$horsepower + auto$weight + auto$acceleration + auto$year)
+hist(auto$acceleration)
+```
+We can see displacement has a positive correlation with horsepower and weight, and mpg has a negative corrrelation with displacement, horsepower and weight. 
+We can also know that acceleration has a approximate normal distribution.
+
+
+#(f)
+```{r}
+According to the data and plots above, we can assume that the mpg can be predicted by variables such as displacement, horsepower and weight. The mpg has a negative relationships with displacement, horsepower and weight. So we can predict the mpg to decrease as displacement, weight and cylinder increase.
+
+
+```
+

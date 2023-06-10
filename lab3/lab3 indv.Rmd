@@ -1,0 +1,153 @@
+---
+title: "Zixiao Wu 515491-Individual Assignment 3"
+author: "Zixiao Wu"
+date: "2022-09-23"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+4.7 Exercises Problem 10
+```{r}
+library(ISLR)
+library(MASS)
+library(class)
+head(Weekly)
+attach(Weekly)
+```
+
+
+#(a)
+```{r}
+summary(Weekly)
+pairs(Weekly[,1:8])
+cor(Weekly[,1:8])
+```
+```{}
+From the numerical and graphical summaries above, we can know that there may be a positive relationship between 'Year' and 'Volume' only. Also, four lag observations are almost the same.
+```
+
+
+#(b)
+```{r}
+log = glm(Direction ~ Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Weekly, family=binomial)
+summary(log)
+```
+```{}
+We can see that Lag2 is significant in 99% confidencial level.
+```
+
+
+#(c)
+```{r}
+log_prob = predict(log, type="response")
+log_pred = rep("down", 1089)
+log_pred[log_prob > 0.5] = "up"
+table(log_pred, Direction)
+#mean(log_pred==Direction)
+(54+557)/(54+557+48+430)
+557/(430+557)
+48/(54+48)
+```
+```{}
+From the confusion matrix we can know that the correct rate is 56.1%. When predicting a up market, the sensitivity is 56.4%. Also we can see the Type 1 error is 47.1%.
+```
+
+
+#(d)
+```{r}
+train = (Year<2009)
+Test = Weekly[!train ,]
+Test_Direction= Direction[!train]
+
+log2 = glm(Direction ~ Lag2, data=Weekly, family=binomial, subset=train)
+
+log_prob2 = predict(log2,Test, type="response")
+log_pred2 = rep("Down", nrow(Test)) 
+log_pred2[log_prob2>0.5] = "Up"
+table(log_pred2,Test_Direction)
+mean(log_pred2==Test_Direction)
+```
+```{}
+We can see the model has a correct rate of 62.5%.
+```
+
+
+#(e)
+```{r}
+lda = lda(Direction ~ Lag2, data=Weekly, subset=train)
+lda_pred = predict(lda,Test)
+table(lda_pred$class, Test_Direction)
+mean(lda_pred$class==Test_Direction)
+```
+```{}
+We can see the LDA model has the same corret rate as Logistic model.
+```
+
+
+#(g)
+```{r}
+set.seed(114514)
+train.x = Lag2[train]
+test.x = Lag2[!train]
+train_direction = Direction[train]
+dim(train.x) = c(985,1)
+dim(test.x) = c(104,1)
+
+knn_pred = knn(train.x, test.x, train_direction, k=1)
+table(knn_pred, Test_Direction)
+mean(knn_pred==Test_Direction)
+```
+```{}
+We can see that the correct rate is 50%, lower than the models above.
+```
+
+
+#(h)
+```{}
+The logistic regression and the LDA. They are the methods with a higher correct rate, sensitivity and precision. 
+```
+
+
+#(i)
+```{r}
+#knn, k = 5
+knn_pred2 = knn(train.x, test.x, train_direction, k=5)
+table(knn_pred2, Test_Direction)
+mean(knn_pred2==Test_Direction)
+```
+```{r}
+#knn, k = 10
+knn_pred3 = knn(train.x, test.x, train_direction, k=10)
+table(knn_pred3, Test_Direction)
+mean(knn_pred3==Test_Direction)
+```
+```{r}
+#logistic
+log2 = glm(Direction ~ Lag2 + Volume, data=Weekly, family=binomial, subset=train)
+log_prob2 = predict(log2, Test, type="response")
+log_pred2 = rep("Down", 104) 
+log_pred2[log_prob2>0.5] = "Up" 
+table(log_pred2,Test_Direction)
+mean(log_pred2==Test_Direction)
+```
+```{r}
+#lda
+lda2 = lda(Direction ~ Lag2 + Volume, data=Weekly, subset=train)
+lda_pred2 = predict(lda2,Test)
+table(lda_pred2$class, Test_Direction)
+mean(lda_pred2$class==Test_Direction)
+```
+```{}
+As the experiment above, the model which appears to provide the best results is knn(k = 10) model, with a correct rate of 58%. However, it is still lower than the initial lda model. 
+```
+

@@ -1,0 +1,79 @@
+---
+title: "Group Assignment 10"
+author: "Group 5"
+date: "2022-12-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+Exercise 10.7: Problem 11
+
+
+(a)
+```{r}
+data = read.csv('D:\\daily\\WashU\\Machine Learning\\set\\ALL CSV FILES\\Ch10Ex11.csv', header = FALSE)
+```
+
+
+(b)
+```{r}
+D = as.dist(1-cor(data))
+hc1 = hclust(D, method ='complete' )
+plot(hc1)
+```
+
+```{r}
+hc2 = hclust(D, method ='average' )
+plot(hc2)
+```
+
+```{r}
+hc3 = hclust(D, method ='single' )
+plot(hc3)
+```
+
+```{r}
+table(predicted = cutree(hc1,k=2), truth = c(rep(1,20),rep(2,20)))
+table(predicted = cutree(hc2,k=2), truth = c(rep(1,20),rep(2,20)))
+table(predicted = cutree(hc3,k=2), truth = c(rep(1,20),rep(2,20)))
+```
+We can find that results vary greatly when we use different linkage method. 
+
+
+(c)
+We can use the random forest method. 
+```{r}
+predicted = cutree(hc1, k=2)
+df = t(data)
+```
+
+```{r}
+df1 = df[predicted==1,]
+df1 = cbind(df1,predict_cluster = 'one')
+df2 = df[predicted==2,]
+df2 = cbind(df2,predict_cluster = 'two')
+df.label = rbind(df1,df2)
+dflabel = as.data.frame(df.label)
+dflabel$predict_cluster = factor(dflabel$predict_cluster)
+```
+
+```{r}
+library(randomForest)
+
+random = randomForest(predict_cluster~., data = dflabel,mtry = 5,ntree = 1000,importance = TRUE)
+```
+
+```{r}
+varImpPlot(random)
+```
+From the plot we can find that V562 differs the most.

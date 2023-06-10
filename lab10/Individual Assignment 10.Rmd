@@ -1,0 +1,46 @@
+---
+title: "Individual Assignment 10"
+author: "Zixiao Wu"
+date: "2022-11-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Exercise 10.7: Problem 9
+
+(a)
+```{r}
+set.seed(114514)
+
+hc = hclust(dist(USArrests), method = 'complete')
+plot(hc, cex = 0.7)
+```
+
+
+(b)
+```{r}
+hccut = cutree(hc, k=3)
+hccut
+```
+
+
+(c)
+```{r}
+ussc = scale(USArrests)
+hcsc = hclust(dist(ussc), method = 'complete')
+plot(hcsc, cex = 0.7)
+```
+
+
+(d)
+We can find that original model has a height of 10, and the scaled model is 6, means that the clusters are different. 
+In general, variables with different measurement units should be scaled before computing the inter-observation dissimilarities. From this model we can also scale the variable to make every variable has a equal measurement.
+

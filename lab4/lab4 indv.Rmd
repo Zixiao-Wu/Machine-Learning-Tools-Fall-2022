@@ -1,0 +1,150 @@
+---
+title: "Zixiao Wu"
+author: "Individual Assignment 4"
+date: "2022-09-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+#4.7 Exercise, Problem 10
+#(f)
+```{r}
+library(ISLR)
+library(MASS)
+attach(Weekly)
+
+train = (Year<2009)
+Test = Weekly[!train ,]
+Test_Direction= Direction[!train]
+
+qda = qda(Direction ~ Lag2, data=Weekly[train,])
+qda_pred = predict(qda,Test)
+table(qda_pred$class, Test_Direction)
+mean(qda_pred$class==Test_Direction)
+```
+
+
+
+#5.4 Exercise, Problem 8 
+#(a)
+```{r}
+library(boot)
+set.seed (1)
+x=rnorm(100)
+y=x-2*x^2+rnorm (100)
+head(x)
+head(y)
+```
+```{}
+p = 100
+n = 2
+y = x-2*x^2+η
+η is the error term
+```
+
+
+#(b)
+```{r}
+plot(x,y)
+```
+```{}
+We can know that the plot is non-linear, and this is a typical quadratic function plot.
+```
+
+
+#(c)
+```{r}
+library(MASS)
+set.seed(1000)
+x = c(rnorm(100))
+y = c(x-2*x^2+rnorm (100))
+data = data.frame(x,y)
+
+#i
+lm1 = glm(y~x, data = data)
+err1 = cv.glm(data, lm1)$delta[1]
+
+#ii
+lm2 = glm(y~x+I(x^2), data = data)
+err2 = cv.glm(data, lm2)$delta[1]
+
+#iii
+lm3 = glm(y~x+I(x^2)+I(x^3), data = data)
+err3 = cv.glm(data, lm3)$delta[1]
+
+#iv
+lm4 = glm(y~x+I(x^2)+I(x^3)+I(x^4), data = data)
+err4 = cv.glm(data, lm4)$delta[1]
+
+err1
+err2
+err3
+err4
+```
+```{}
+We can see that the model ii has the smallest estimate MSE, because it is a quadratic model as the real model.
+```
+
+
+#(d)
+```{r}
+library(boot)
+set.seed(1001)
+x = c(rnorm(100))
+y = c(x-2*x^2+rnorm (100))
+data = data.frame(x,y)
+
+#i
+lm1 = glm(y~x, data = data)
+err1 = cv.glm(data, lm1)$delta[1]
+
+#ii
+lm2 = glm(y~x+I(x^2), data = data)
+err2 = cv.glm(data, lm2)$delta[1]
+
+#iii
+lm3 = glm(y~x+I(x^2)+I(x^3), data = data)
+err3 = cv.glm(data, lm3)$delta[1]
+
+#iv
+lm4 = glm(y~x+I(x^2)+I(x^3)+I(x^4), data = data)
+err4 = cv.glm(data, lm4)$delta[1]
+
+err1
+err2
+err3
+err4
+```
+```{}
+We can see that the result is the same as above, the lowest MSE is given by the model with a quadratic term.
+```
+
+
+#(e)
+```{}
+The model with the quadratic term had the lowest LOOCV error. This is as we expected, because the real model is a quadratic model
+```
+
+
+#(f)
+```{r}
+summary(lm1)
+summary(lm2)
+summary(lm3)
+summary(lm4)
+```
+```{}
+From model ii, iii and iv we can know that both x and x^2 term is statistical significant, but other term is not significant with a large p-value. Also the model ii has the smallest AIC, so we should pick it. These results agree with the conclusions drawn based on the cross-validation results.
+```
+

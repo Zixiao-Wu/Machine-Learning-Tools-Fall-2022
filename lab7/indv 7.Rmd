@@ -1,0 +1,61 @@
+---
+title: "Individual Assignment 7"
+author: "Zixiao Wu"
+date: "2022-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Exercise 8.4: Problem 8 (parts a, b, & c)
+(a)
+```{r}
+library(ISLR)
+library(tree)
+set.seed(100)
+
+num = sample(1:nrow(Carseats), nrow(Carseats)/2)
+train = data.frame(Carseats[num,])
+test = data.frame(Carseats[-num,])
+```
+
+
+(b)
+```{r}
+tree.car = tree(Sales ~., data = train)
+summary(tree.car)
+plot(tree.car)
+text(tree.car,pretty=0)
+```
+```{r}
+tree.pred = predict(tree.car,test)
+test.mse = mean((tree.pred-test$Sales)^2)
+test.mse
+```
+We can know that the test MSE = 5.3957
+
+
+(c)
+```{r}
+set.seed(100)
+cv.car = cv.tree(tree.car)
+cv.car
+plot(cv.car$size, cv.car$dev, type = 'b')
+```
+We can see that the best size is 13.
+
+```{r}
+prune.car = prune.tree(tree.car, best = 13)
+pred.prune = predict(prune.car, newdata = test)
+pune_test.mse = mean((pred.prune-test$Sales)^2)
+pune_test.mse
+```
+So, pruning the tree improve the test MSE from 5.3957 to 5.3924.
+

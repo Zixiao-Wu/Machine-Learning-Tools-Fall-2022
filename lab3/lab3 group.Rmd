@@ -1,0 +1,195 @@
+---
+title: "LAB 4"
+author: "Group 5"
+date: "2022-09-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+#4.7 Exercises; Problem 11
+```{r}
+library(ISLR)
+library(MASS)
+names(Auto)
+dim(Auto)
+```
+
+
+#(a)
+```{r, '(a)'}
+Auto$mpg01 = 0
+for(i in 1:dim(Auto)[1]){
+  if (Auto$mpg[i] > median(Auto$mpg)){
+    Auto$mpg01[i] = 1
+  }else{
+    Auto$mpg01[i] = 0
+  }
+}
+data = data.frame(Auto[,1:8], Auto$mpg01)
+head(data)
+```
+
+
+#(b)
+```{r}
+pairs(data)
+cor(data)
+par(mfrow=c(1,3))
+boxplot(cylinders ~ mpg01, data = Auto)
+boxplot(displacement ~ mpg01, data = Auto)
+boxplot(horsepower ~ mpg01, data = Auto)
+boxplot(weight ~ mpg01, data = Auto)
+boxplot(acceleration ~ mpg01, data = Auto)
+boxplot(year ~ mpg01, data = Auto)
+par(mfrow=c(1,1))
+```
+```{}
+We can assume that displacement, horsepower and weight seem most likely to be useful in predicting mpg01.
+```
+
+
+#(c)
+```{r}
+set.seed(8080)
+seed = sample(nrow(data), nrow(data)*2/3, replace = FALSE)
+train = data[seed,]
+test = data[-seed,]
+fix(train)
+realmpg = data$Auto.mpg01[-seed]
+```
+
+
+#(d)
+```{r}
+lda1 = lda(Auto.mpg01 ~ displacement+horsepower+weight, data=train)
+lda1
+```
+```{r}
+lda_pred = predict(lda1,test)
+pred1 = lda_pred$class
+table(pred1, realmpg)
+mean(pred1 != realmpg)
+```
+```{}
+We can see the test error is 10.6%
+```
+
+
+#(f)
+```{r}
+logistic = glm(Auto.mpg01 ~ displacement + horsepower + weight, data = train, family = binomial)
+logistic
+```
+```{r}
+log_pred = predict(logistic, test, type="response")
+pred2 = rep(0, nrow(test))
+pred2[log_pred > 0.5] = 1
+table(pred2, realmpg)
+mean(pred2 != realmpg)
+```
+```{}
+The test error is 10.6% as well.
+```
+
+
+#(g)
+```{r}
+library(class)
+train.x = cbind(train$displacement, train$horsepower, train$weight)
+test.x = cbind(test$displacement, test$horsepower, test$weight)
+train.mpg01 = train$Auto.mpg01
+test.mpg01 = test$Auto.mpg01
+
+#knn, k = 1
+set.seed(80)
+knn.pred = knn(train.x, test.x, train.mpg01, k = 1)
+table(knn.pred, test.mpg01)
+mean(knn.pred != test.mpg01)
+```
+```{r}
+#knn, k = 5
+set.seed(80)
+knn2.pred = knn(train.x, test.x, train.mpg01, k = 5)
+table(knn2.pred, test.mpg01)
+mean(knn2.pred != test.mpg01)
+```
+```{r}
+#knn, k = 8
+set.seed(80)
+knn3.pred = knn(train.x, test.x, train.mpg01, k = 5)
+table(knn3.pred, test.mpg01)
+mean(knn3.pred != test.mpg01)
+```
+```{}
+We can see the test error are 17.5%, 13.7% and 13.7%, so knn model with k = 5 or k = 8 seems better.
+```
+
+
+
+
+#4.7 Exercises; Problem 12 (a)
+```{r}
+power = function(x, a){
+  print(x^a)
+}
+power(2,3)
+```
+
+
+#(b)
+```{r}
+power2 = function(x, a){
+  print(x^a)
+}
+power2(2,3)
+power2(3,8)
+```
+
+
+(c)
+```{r}
+power2(10,3)
+power2(8,17)
+power2(131,3)
+
+```
+
+
+#(d)
+```{r}
+Power3 = function(x,a){
+result = x^a
+return(result)
+}
+```
+
+
+#(e)
+```{r}
+x = 1:10
+y = Power3(x,2)
+plot(x,y, main="Plot of y = x^2")
+plot(x,y, log = 'x', main="Plot of y = x^2")
+plot(x,y, log = 'y', main="Plot of y = x^2")
+plot(x,y, log = 'xy', main="Plot of y = x^2")
+```
+
+
+#(f)
+```{r}
+PlotPower = function(a,b){
+x = a
+y = a^b
+plot(x, y)
+}
+PlotPower(1:10,3)
+```
+

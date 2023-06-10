@@ -1,0 +1,74 @@
+---
+title: "Group Assignment 5"
+author: "Group 5"
+date: "2022-10-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Exercise 5.4: Problem 2
+#(g)
+```{r}
+n = 1:100000
+p = 1-(1-1/n)^n
+plot(n, p, ylim = c(0.6, 0.8))
+```
+
+
+#(h)
+```{r}
+store=rep(NA, 10000)
+for(i in 1:10000){
+  store[i] = sum(sample(1:100, rep=TRUE)==4)>0
+}
+mean(store)
+```
+
+
+#Exercise 5.4: Problem 6
+#(a)
+```{r}
+library(MASS)
+library(ISLR)
+set.seed(114514)
+attach(Default)
+log = glm(default ~ income+balance, data = Default, family = binomial)
+summary(log)
+```
+
+
+#(b)
+```{r}
+boot.fn = function(data, index){
+  default = data$default[index]
+  income = data$income[index]
+  balance = data$balance[index]
+  log2 = glm(default ~ income + balance, family = binomial)
+  return(summary(log2)$coefficients[2:3,2])
+}
+boot.fn(Default,1:nrow(Default))
+```
+```{r}
+boot.fn=function(data, index){
+  log=glm(default~income + balance, data = Default, family = 'binomial', subset=index)
+  return(coef(log))
+}
+#可以直接这么写
+```
+
+
+#(c)
+```{r}
+library(boot)
+boot(Default,boot.fn,100)
+```
+

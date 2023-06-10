@@ -1,0 +1,46 @@
+---
+title: "group assignment 8"
+author: "Zixiao Wu"
+date: "2022-11-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r}
+library(randomForest)
+library(gbm)
+library(MASS)
+set.seed(100)
+
+train = sample(1:nrow(Boston),nrow(Boston)/2)
+```
+```{r}
+#boosting
+boost.boston = gbm(medv~.,Boston[train,],distribution = "gaussian", n.trees=5000,interaction.depth=4)
+summary(boost.boston)
+```
+```{r}
+Boston.pred=predict(boost.boston,newdata=Boston[-train,],n.trees=5000)
+
+boston.test=Boston[-train,"medv"]
+
+mean((Boston.pred-boston.test)^2)
+```
+
+
+```{r}
+#bag
+bag.boston = randomForest(medv~., data=Boston, subset=train, mtry=13, importance=TRUE)
+
+```
+

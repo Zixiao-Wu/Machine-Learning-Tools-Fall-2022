@@ -1,0 +1,97 @@
+---
+title: "Zixiao Wu-Individual Assignment 1"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+date: "2022-09-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+#(a)
+```{r}
+library(MASS)
+dim(Boston)
+```
+From the result above, we can know that there are 506 rows and 14 columns in the data. 
+Each row is different area in Boston, and each column is factors that relates to house price. 
+
+
+#(b)
+```{r}
+pairs(Boston)
+pairs(~crim + age + dis + rad + tax +  ptratio + medv, data = Boston)
+pairs(~zn + indus + nox + lstat, data = Boston)
+pairs(~nox + age + dis, data = Boston)
+pairs(~lstat + rm + medv, data = Boston)
+```
+From the plot we can assume that some variables are correlated with other variables:
+  1. crim has a negative realtionship with dis and medv, and has a positive relationship with age; 
+  2. zn has a negative realtionship with indus and nox;
+  3. nox has a negative realtionship with dis, and has a positive relationship with age;
+  4. lstat has a positive relationship with rm and medv.
+
+
+#(c)
+```{r}
+cor(Boston)
+```
+From the data above we can assume that there are a few variables have correlations with crim. 
+crim has a positive relationship with indus, nox, rad, tax and lstat, and the coefficients are all greater than 0.4;
+crim has a negative relationship with medv, dis and black, and the coefficients are all smaller than -0.3.
+
+
+#(d)
+```{r}
+hist(Boston$crim[Boston$crim > 20])
+hist(Boston$tax)
+hist(Boston$ptratio)
+sapply(Boston[(1:14)], range)
+sapply(Boston[(1:14)], mean)
+sapply(Boston[(1:14)], sd)
+```
+1. From the data above we can assume that there are 18 suburbs appear to have a crime rate larger than 20, reaching to above 80. 
+2. Also, there are a few suburbs have a high tax rate, but most suburbs' tax rate are lower than 450. 
+3. According to the diagram, most of the suburbs have a Pupil-teacher ratios higher than 14, and the number of suburbs with Pupil-teacher ratios between 20 and 21 is the highest.
+
+
+#(e)
+```{r}
+sum(Boston$chas == 1)
+```
+There are 35 suburbs in this data set bound the Charles river.
+
+
+#(f)
+```{r}
+summary(Boston$ptratio)
+```
+The median pupil-teacher ratio among the suburbs is 19.05.
+
+
+#(g)
+```{r}
+subset(Boston, medv == min(Boston$medv))
+summary(Boston)
+```
+We can know that there are two suburbs, 399 and 406, that have the lowest median property values.
+Also we can find that black red and age are higher than the mean, zn is much lower than the mean, other predictors are close to the mean. 
+
+
+#(h)
+```{r}
+sum(Boston$rm > 7)
+sum(Boston$rm > 8)
+summary(subset(Boston, rm > 8))
+```
+From above we can know that there are 64 suburbs average more than seven rooms per dwelling, and 13 more than eight rooms per dwelling. Also we can find that these suburbs have a lower crim, tax, lstat and indus, and a higher age and medv.

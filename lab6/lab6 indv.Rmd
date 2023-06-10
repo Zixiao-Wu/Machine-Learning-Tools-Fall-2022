@@ -1,0 +1,100 @@
+---
+title: "Individual Assignment 6"
+author: "Zixiao Wu 515491"
+date: "2022-10-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+#Exercise 6.8: Problem 8 (parts e & f)
+
+```{r}
+set.seed(114514)
+X = c(rnorm(100))
+N = c(rnorm(100))
+β0=114
+β1=514
+β2=1919
+β3=810
+Y = c(β0 + β1*X + β2*X^2 + β3*X^3 + N)
+df=data.frame(X,X^2,X^3,X^4,X^5,X^6,X^7,X^8,X^9,X^10,Y)
+```
+
+
+
+#(e)
+```{r}
+set.seed(114514)
+library(glmnet)
+x = model.matrix(Y~.,df)[,-1]
+y = df$Y
+
+train = sample(1:nrow(x), nrow(x)/2)
+test = (-train)
+y.test = y[test]
+
+lasso = glmnet(x[train,], y[train], alpha=1)
+cv.out = cv.glmnet(x[train,],y[train], alpha=1)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+
+out = glmnet(x,y,alpha=1)
+lasso.coef = predict(out, type="coefficients",s=bestlam)
+lasso.coef
+```
+
+```{}
+We can find that Lasso method creates a model with β0, β1, β2 and β3, and other coef are all 0. That means the model is clearly provides an accurate estimation of the real model.
+```
+
+
+
+#(f)
+```{r}
+set.seed(114514)
+β7 = 100
+Y2 = c(β0 + β7*X^7 + N)
+df2 = data.frame(X,X^2,X^3,X^4,X^5,X^6,X^7,X^8,X^9,X^10,Y2)
+```
+
+```{r}
+#best subset
+library(leaps)
+regfit.full2 = regsubsets(Y2~.,data=df2,nvmax=10)
+reg.summary = summary(regfit.full2)
+reg.summary
+reg.summary$cp
+reg.summary$bic
+reg.summary$adjr2
+```
+```{}
+According to cp and bic, they are lowest at one variable model. So the model with with the x^7 term is the best choice.
+```
+
+```{r}
+#Lasso
+x2 = model.matrix(Y2~., df2)[,-1]
+y2 = df2$Y2
+
+train2 = sample(1:nrow(x2), nrow(x2)/2)
+
+cv.out = cv.glmnet(x[train,], y[train], alpha=1)
+bestlam2 = cv.out$lambda.min
+
+out2 = glmnet(x2, y2, alpha=1)
+lasso.coef2 = predict(out2, type="coefficients", s=bestlam2)
+lasso.coef2
+```
+```{}
+We can see Lasso model also results in a model with one variable X7. Also, the model is a good estimation of the real model.
+```
+

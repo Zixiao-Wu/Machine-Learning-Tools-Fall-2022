@@ -1,0 +1,26 @@
+---
+title: "Module 10 - Neural Nets Demo"
+author: "DuraiSundaramoorthi"
+
+output: pdf_document
+---
+
+## Neural Network
+## Code Chunk 1
+```{r}
+library(neuralnet)
+
+df <- read.csv("C:/Durai/DAT500S/R/Butter.csv")
+
+df
+
+nn <- neuralnet(Like ~ Salt + Fat, data = df, linear.output = F, hidden = 3)
+
+nn$weights
+
+plot(nn, rep="best")
+
+prediction(nn)
+
+```
+

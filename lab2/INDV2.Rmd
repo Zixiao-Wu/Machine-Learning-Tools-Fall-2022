@@ -1,0 +1,93 @@
+---
+title: "Zixiao Wu 515491-Individual Assignment 2"
+author: "Zixiao Wu"
+date: "2022-09-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r, '3.7 Exercises Problem 10'}
+library(MASS)
+library(ISLR)
+Carseats = na.omit(Carseats)
+head(Carseats)
+attach(Carseats)
+```
+
+
+#(a)
+```{r, '(a)'}
+sales = lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(sales)
+```
+
+
+#(b)
+```{'(b)'}
+1. the intercept represents the number of car seats sold when all other predictors = 0;
+2. the coefficient of price  = -0.05, means when price increases by 1 and other predictors are constant, sales decrease by 54.
+3. the coefficient of urban = -0.02, but it is not significant, means it does not affect the sales.
+4. the coefficient ofus = 1.2, means when the sales is in the us, the sales will increase by 1200. 
+```
+
+
+#(c)
+```{'(c)'}
+Sales = 13.04 - 0.02 * Urban + 1.20 * US - 0.05 * Price
+      = 13.04 - 0.02 * Urban + 1.20 * US - 0.05 * Price,                      (Urban=1, US=1)
+      = 13.04 - 0.02 * Urban + 1.20 * Price,                                  (Urban=1, US=0)
+      = 13.04 + 1.20 * US - 0.05 * Price,                                     (Urban=0, US=1)
+      = 13.04 - 0.05 * Price,                                                 (Urban=0, US=0)
+```
+
+
+#(d)
+```{}
+we can reject the H0 hypothesis for the intercept, US and Price according to the p-value in the summary of the model above. 
+```
+
+
+#(e)
+```{r}
+sales2 = lm(Sales ~ Price+US, data= Carseats)
+summary(sales2)
+```
+
+
+#(f)
+```{}
+The Residual standard error goes from 2.47 to 2.46, remian the same, and the Adjusted R-squared remian in 0.23.
+So neither model is very well, given the low value of and R-squared.
+```
+
+
+#(g)
+```{r}
+confint(sales2)
+```
+
+
+#(h)
+```{r}
+par(mfrow=c(2,2))
+plot(sales2)
+par(mfrow=c(1,1))
+plot(rstudent(sales2))
+plot(hatvalues(sales2))
+rstudent(sales2)[which(rstudent(sales2)>3)]
+```
+
+```{}
+Based on the Residuals vs Leverage plot and Hatvalues plot, we can see there are no evidence of high leverage observation. 
+```
+

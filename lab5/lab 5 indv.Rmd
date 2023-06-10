@@ -1,0 +1,75 @@
+---
+title: "Individual Assignment 5"
+author: "Zixiao Wu 515491"
+date: "2022-10-07"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+#Exercise 6.8: Problem 8
+#(a)
+```{r}
+set.seed(114514)
+X = c(rnorm(100))
+N = c(rnorm(100))
+```
+
+
+#(b)
+```{r}
+β0=114
+β1=514
+β2=1919
+β3=810
+Y = c(β0 + β1*X + β2*X^2 + β3*X^3 + N)
+```
+
+
+#(c)
+```{r}
+df=data.frame(X,X^2,X^3,X^4,X^5,X^6,X^7,X^8,X^9,X^10,Y)
+library(leaps)
+best=regsubsets(Y~., data=df, nvmax=10)
+which.min(summary(best)$cp)
+which.min(summary(best)$bic)
+which.max(summary(best)$adjr2)
+```
+```{}
+We can see that all three method to choose model choose the model with three observations.
+```
+
+```{r}
+plot(best, scale = 'adjr2')
+plot(best, scale = 'bic')
+plot(best, scale = 'Cp')
+```
+```{r}
+coef(best,3)
+```
+
+
+#(d)
+```{r}
+best.for= regsubsets(Y~.,data=df,nvmax=10,method='forward')
+best.back= regsubsets(Y~.,data=df,nvmax=10,method='backward')
+which.min(summary(best.for)$cp)
+which.min(summary(best.for)$bic)
+which.max(summary(best.for)$adjr2)
+which.min(summary(best.back)$cp)
+which.min(summary(best.back)$bic)
+which.max(summary(best.back)$adjr2)
+```
+```{}
+We can see that backforward and forward selection choose the same model as best subset method. 
+```
+

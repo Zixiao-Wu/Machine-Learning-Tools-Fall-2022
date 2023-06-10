@@ -1,0 +1,78 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-09-15"
+---
+3.7--9
+```{r}
+library(MASS)
+library(ISLR)
+Auto = na.omit(Auto)
+names(Auto)
+```
+
+#a
+```{r}
+pairs(Auto[1:8])
+```
+
+#b
+```{r}
+cor(Auto[1:8])
+```
+```{r}
+round(cor(Auto[1:8]), digits = 3)       #将函数四舍五入
+```
+
+
+#c
+```{r}
+mpg = lm(mpg~.-name,data=Auto)
+summary(mpg)
+```
+1, F = 252.4, p=0.00, strong relationship between predictor and response;
+2, displacement, weight, year, origin;
+3, coefficient = 0.75, suggests year + 1, mpg + 0.75;
+
+
+
+#d
+```{r}
+par(mfrow=c(2,2))
+plot(mpg)
+par(mfrow = c(1,1))
+plot(hatvalues(mpg))
+which.max(hatvalues(mpg))
+library(car)
+vif(mpg)
+```
+The residual plot suggests there may be non-linear relationship; 
+According to residuals vs leverage plot and hatvalues plot, 14 may be high leverage observation.
+
+
+#e
+```{r}
+#professor
+mpg0 = lm(mpg~.-name + year:horsepower + horsepower:displacement,data=Auto)
+summary(mpg0)
+
+#mine
+mpg1 = lm(mpg~.-name + year:origin + weight:displacement,data=Auto)
+summary(mpg1)
+```
+
+All the interaction predictors in each model are significant, so there may be interaction effects.
+
+
+#f
+```{r}
+#professor
+mpg2 = lm(mpg~.-name + I(weight^2) + I(displacement^2), data = Auto)
+summary(mpg2)
+
+#mine
+mpg3 = lm(mpg~.-name + log(year) + log(weight), data = Auto)
+summary(mpg3)
+```
+
+Model with log predictor seems perform better. 

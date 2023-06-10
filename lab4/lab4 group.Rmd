@@ -1,0 +1,137 @@
+---
+title: "Group Assignment 4"
+author: "Group 5"
+date: "2022-09-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+#Exercise 4.7: Problem 11
+#(e)
+```{r}
+library(MASS)
+library(ISLR)
+Auto$mpg01 = 0
+for(i in 1:nrow(Auto)){
+  if (Auto$mpg[i] > median(Auto$mpg)){
+    Auto$mpg01[i] = 1
+  }else{
+    Auto$mpg01[i] = 0
+  }
+}
+data = data.frame(Auto[,1:8], Auto$mpg01)
+
+set.seed(5)
+seed = sample(nrow(data), nrow(data)*0.5)
+train = data[seed,]
+test = data[-seed,]
+realmpg = data$Auto.mpg01[-seed]
+
+attach(data)
+qda = qda(Auto.mpg01 ~ displacement + horsepower + weight, data=train)
+qdapred = predict(qda, test)$class
+table(qdapred, realmpg)
+mean(qdapred==realmpg)
+```
+```{}
+效果真牛逼
+```
+
+
+
+#Exercise 5.4: Problem 5
+#(a, b)
+```{r}
+library(ISLR)
+library(MASS)
+library(boot)
+
+set.seed(114)
+seed = sample(nrow(Default), nrow(Default)*0.5)
+train = Default[seed,]
+test = Default[-seed,]
+realdf = test$default
+
+attach(Default)
+log = glm(default ~ balance + income, data = train, family = binomial)
+pred = predict(log, test, type = 'response')
+preds = rep('No',nrow(test))
+preds[pred > 0.5] = 'Yes'
+table(preds, realdf)
+mean(preds != realdf)
+```
+
+
+#(c)
+```{r}
+set.seed(514)
+seed = sample(nrow(Default), nrow(Default)*0.5)
+train = Default[seed,]
+test = Default[-seed,]
+realdf = test$default
+
+attach(Default)
+log = glm(default ~ balance + income, data = train, family = binomial)
+pred = predict(log, test, type = 'response')
+preds = rep('No',nrow(test))
+preds[pred > 0.5] = 'Yes'
+table(preds, realdf)
+mean(preds != realdf)
+
+set.seed(1919)
+seed = sample(nrow(Default), nrow(Default)*0.5)
+train = Default[seed,]
+test = Default[-seed,]
+realdf = test$default
+
+attach(Default)
+log = glm(default ~ balance + income, data = train, family = binomial)
+pred = predict(log, test, type = 'response')
+preds = rep('No',nrow(test))
+preds[pred > 0.5] = 'Yes'
+table(preds, realdf)
+mean(preds != realdf)
+
+set.seed(810)
+seed = sample(nrow(Default), nrow(Default)*0.5)
+train = Default[seed,]
+test = Default[-seed,]
+realdf = test$default
+
+attach(Default)
+log = glm(default ~ balance + income, data = train, family = binomial)
+pred = predict(log, test, type = 'response')
+preds = rep('No',nrow(test))
+preds[pred > 0.5] = 'Yes'
+table(preds, realdf)
+mean(preds != realdf)
+```
+
+
+#(d)
+```{r}
+set.seed(114)
+seed = sample(nrow(Default), nrow(Default)*0.5, replace = FALSE)
+train = Default[seed,]
+test = Default[-seed,]
+realdf = test$default
+
+attach(Default)
+log = glm(default ~ balance + income + student, data = train, family = binomial)
+pred = predict(log, test, type = 'response')
+preds = rep('No',nrow(test))
+preds[pred > 0.5] = 'Yes'
+table(preds, realdf)
+mean(preds != realdf)
+```
+

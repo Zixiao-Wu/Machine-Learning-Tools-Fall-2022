@@ -1,0 +1,168 @@
+---
+title: "Individual Assignment 8"
+author: "Zixiao Wu"
+date: "2022-11-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+Exercises 8.4
+Problem #8:
+
+(d).
+```{r}
+library(ISLR)
+library(tree)
+library(MASS)
+library(randomForest)
+set.seed(100)
+
+num = sample(1:nrow(Carseats), nrow(Carseats)/2)
+train = data.frame(Carseats[num,])
+test = data.frame(Carseats[-num,])
+```
+
+```{r}
+attach(Carseats)
+bag.car = randomForest(Sales~., data=train, mtry=10, importance=TRUE)
+bag.car
+importance(bag.car)
+```
+
+We can find that ShelveLoc and Price are important.
+
+```{r}
+set.seed(100)
+bag.car = predict(bag.car,newdata = test)
+mean((bag.car-test$Sales)^2)
+```
+The test MSE is 3.25.
+
+
+(e).
+```{r}
+library(randomForest)
+set.seed(100)
+for (m in seq(1:10)){
+  rf = randomForest(Sales~.,data=train,mtry=m,importance=T)
+  mse = mean((predict(rf,newdata = test)-test$Sales)^2)
+  print(mse)
+}
+```
+We can find that when m = 7, the model has the lowest test MSE.
+
+```{r}
+set.seed(100)
+rf = randomForest(Sales~.,data=train,mtry=7,importance=T)
+importance(rf)
+varImpPlot(rf)
+```
+We can find that ShelveLoc and Price are also important in random forest model.
+
+
+
+Problem #10:
+(a).
+```{r}
+library(MASS)
+library(gbm)
+library(magrittr)
+library(dplyr)
+set.seed(100)
+
+data = Hitters %>% dplyr :: filter(!is.na(Salary))
+data$Salary = log(data$Salary)
+```
+
+
+(b).
+```{r}
+set.seed(100)
+num = sample(1:nrow(data), 200)
+train = data.frame(data[num,])
+test = data.frame(data[-num,])
+```
+
+
+(c),(d).
+```{r}
+set.seed(100)
+
+x = seq(0.001,0.02,0.0001)
+
+train.mse = rep(NA,length(x))
+test.mse = rep(NA,length(x))
+
+for (i in x){
+  boost.Hitters = gbm(Salary~., data=train,distribution = "gaussian", n.trees = 1000,interaction.depth = 4, shrinkage = i)
+  
+  Hitters.pred1 = predict(boost.Hitters,newdata = train, n.trees = 1000)
+  train.mse[which(i==x)] = mean((Hitters.pred1-train$Salary)^2)
+  
+  Hitters.pred2 = predict(boost.Hitters,newdata = test, n.trees = 1000)
+  test.mse[which(i==x)] = mean((Hitters.pred2-test$Salary)^2)
+}
+
+plot(x,train.mse,type="b")
+plot(x,test.mse,type="b")
+```
+```{r}
+min(test.mse)
+```
+
+
+(e).
+```{r}
+#linear model
+set.seed(100)
+lm.fit = lm(Salary~., data=train)
+lm.preds = predict(lm.fit, newdata = test)
+lm.mse = mean((test$Salary-lm.preds)^2)
+lm.mse
+```
+```{r}
+# ridge model with cross validation
+library(glmnet)
+set.seed(100)
+
+train_mat = model.matrix(Salary~.,train)
+test_mat = model.matrix(Salary~.,test)
+y.train = train$Salary
+ridge.mod = glmnet(train_mat, y.train, alpha = 0)
+
+crossv=cv.glmnet(train_mat, y.train, alpha=0)
+bestlam=crossv$lambda.min
+ridge.pred=predict(ridge.mod, s=bestlam, newx = test_mat)
+mean((test$Salary-ridge.pred)^2)
+```
+We can find that test MSE of linear model and ridge regression are 0.58 and 0.53, which is higher than that of boosting model.
+
+
+(f)
+```{r}
+set.seed(100)
+best = gbm(Salary~., data=train, distribution = "gaussian", n.trees = 1000,interaction.depth = 4, shrinkage = x[which.min(x)])
+summary(best)
+```
+The most important variables are CRuns, CAtBat and CHits.
+
+
+(g).
+```{r}
+set.seed(100)
+library(randomForest)
+bag = randomForest(Salary~.,data = train,mtry=19,importance=T)
+bag.pred = predict(bag,newdata = test)
+mean((test$Salary-bag.pred)^2)
+```
+The test MSE is 0.20, similar to boosting model.

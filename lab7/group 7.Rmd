@@ -1,0 +1,88 @@
+---
+title: "Group Assignment 7"
+author: "Group 5"
+date: "2022-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Exercise 8.4
+Problem #9: This problem involves the OJ data set which is part of the ISLR package.
+
+#a
+```{r}
+set.seed(10)
+library(ISLR)
+library(tree)
+dim(OJ)
+```
+
+```{r}
+train = sample(1:nrow(OJ), 800)
+test = OJ[-train,]
+train = data.frame(OJ[train,])
+test = data.frame(test)
+```
+
+
+#b
+```{r}
+#attach(train)
+treeoj = tree(Purchase ~.,data = train)
+summary(treeoj)
+```
+There are 7 nodes in the tree, and the error rate is 0.1775
+
+
+#c,d
+```{r}
+treeoj
+plot(treeoj)
+text(treeoj,pretty=0)
+```
+From the tree we can know that node 4 is MM, means its loyalCH < 0.035047 
+
+
+#e
+```{r}
+pred.OJ = predict(treeoj, newdata = test, type = "class")
+table(pred.OJ,test$Purchase)
+```
+error rate is 0.2764
+
+
+#f
+```{r}
+set.seed(10)
+cv.OJ = cv.tree(treeoj, FUN=prune.misclass)
+cv.OJ
+```
+
+
+#g,h
+```{r}
+plot(cv.OJ$size, cv.OJ$dev, xlab = "Tree size", ylab = "CV Classification Error", type = "b")
+```
+size 6 has the lowest error rate
+
+
+#i
+```{r}
+prune.OJ = prune.misclass(treeoj,best=5)
+summary(prune.OJ)
+pred.prune = predict(prune.OJ, newdata = test, type = "class")
+table(pred.prune,test$Purchase)
+```
+```{r}
+plot(prune.OJ)
+text(prune.OJ, pretty = 0)
+```
+We can see that the pruned and unpruned trees almost have the same training error rate and test error rate。

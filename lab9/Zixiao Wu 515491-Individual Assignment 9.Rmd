@@ -1,0 +1,114 @@
+---
+title: "Individual Assignmenet 9"
+author: "Zixiao Wu"
+date: "2022-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Exercises 8.4
+
+```{r}
+library(neuralnet)
+library(nnet)
+library(ggplot2)
+library(caret)
+library(gains)
+```
+
+```{r}
+df=read.csv("C:/Users/wuzix/Desktop/EastWestAirlinesNN.csv")
+attach(df)
+df = na.omit(df)
+dim(df)
+```
+
+```{r}
+var = c("Topflight", "Balance", "Qual_miles", "cc1_miles.", "cc2_miles.", "cc3_miles.", "Bonus_miles", "Bonus_trans", "Flight_miles_12mo", "Flight_trans_12", "Online_12", "Email", "Club_member", "Any_cc_miles_12mo")
+df = df[,c("Phone_sale",var)]
+```
+
+```{r}
+phone = df[,"Phone_sale"]
+max_price=range(df['Phone_sale'])[2]
+min_price=range(df['Phone_sale'])[1]
+
+#Scale the numerical predictor and outcome variables to a 0-1 scale
+numerical = c("Phone_sale", "Balance", "Qual_miles", "Bonus_miles", "Bonus_trans", "Flight_miles_12mo", "Flight_trans_12", "Online_12")
+normvalues = preProcess(df[,numerical], method = 'range')
+df[,numerical] = predict(normvalues, df[,numerical])
+```
+
+```{r}
+#bulid model
+set.seed(114514)
+train=sample(nrow(df),nrow(df)*0.65)
+#neural network using 1 hidden layer 5 nodes
+f=as.formula(paste('Phone_sale~',paste(names(df)[!names(df) %in% c('Phone_sale')],collapse='+')))
+nn=neuralnet(f,data=df[train,],hidden=5)
+```
+
+```{r}
+plot(nn,rep = 'best')
+```
+
+```{r}
+#decile lift chart
+pred.train = predict(nn,subset(df[train,],select = -c(Phone_sale)))
+gain = gains(phone[train],pred.train)
+pred.test = predict(nn,subset(df[-train,],select = -c(Phone_sale)))
+gain1 = gains(phone[-train],pred.test)
+
+par(mfcol=c(1,2))
+barplot(gain$mean.resp / mean(phone[train]),names.arg = gain$depth, xlab = "Percentile",ylab = "Mean Response", main = "train Decile-wise lift chart")
+barplot(gain1$mean.resp / mean(phone[-train]),names.arg = gain1$depth, xlab = "Percentile",ylab = "Mean Response", main = "test Decile-wise lift chart")
+```
+1,2. Reading the bar on the left of the decile-wise lift chart, we see that taking 10% of the data from training set that are ranked by the model as “the most probable 1’s” (having the highest propensities) yields, it has more than 2.5 times as many 1’s as would a random selection of 10% of the data. Also, the rate is nearly 1.5 in test set after modeling. So, we can see that the  prediction capacity of the model is lower in the validation set than in the training set.
+
+```{r}
+#build a rmse function
+rmsef = function(nn,df,train,phone){
+  pred.train = predict(nn,subset(df[train,],select = -c(Phone_sale)))
+  pred.train.orig = pred.train*(max_price-min_price)+min_price
+  train.rmse = sqrt(mean((phone[train]-pred.train.orig)^2))
+  pred.test = predict(nn,subset(df[-train,],select = -c(Phone_sale)))
+  pred.test.orig = pred.test*(max_price-min_price)+min_price
+  test.rmse = sqrt(mean((phone[-train]-pred.test.orig)^2))
+  #return rmse
+  rmse = as.data.frame(rbind(train.rmse,test.rmse))
+  return(rmse)
+}
+
+```
+
+```{r}
+#compare two model
+#another neuralnet model
+nn1 =neuralnet(f,data=df[train,],hidden=1)
+rmse = rmsef(nn,df,train,phone)
+rmse1 = rmsef(nn1,df,train,phone)
+
+rmse_df = cbind(rmse,rmse1)
+names(rmse_df) = c('1 layer 5 nodes','1 layer 1 nodes')
+rmse_df
+```
+3. From the rmsee of two models, we can find that though the model with 5 nodes has lower train rmse, its test rmse is higher than the model with 1 nodes. So we can assume that former model may have overfitting problem. 
+
+```{r}
+plot(nn,rep = 'best')
+```
+
+```{r}
+#check the Generalize Weight
+head(nn$generalized.weights[[1]])
+```
+4. From the Generalize Weight result, we can see that the 10th variable, Flight_trans_12, has a weight significantly greater than the other variables, shows that it may quite important for model prediction.
